@@ -13,6 +13,7 @@ pnpm-debug.log*
 *.env
 frontend/.env
 backend/.env
+frontend/.env.local
 
 # Build outputs
 .next/
