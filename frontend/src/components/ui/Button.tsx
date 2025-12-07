@@ -1,11 +1,28 @@
-"use client";
+'use client';
+import { cn } from "../../lib/utils";
 
-export default function Button({ children, onClick }: any) {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "outline" | "secondary" | "ghost";
+}
+
+export default function Button({
+  children,
+  className,
+  variant = "default",
+  ...props
+}: ButtonProps) {
+  const base =
+    "px-4 py-2 rounded-lg text-sm font-medium transition active:scale-95";
+
+  const variants = {
+    default: "text-white cursor-pointer ",
+    outline: "border border-gray-300 hover:bg-gray-100",
+    secondary: "bg-gray-200 hover:bg-gray-300",
+    ghost: "hover:bg-gray-100",
+  };
+
   return (
-    <button
-      onClick={onClick}
-      className="bg-[#2f2f2f] px-4 py-2 rounded-lg hover:bg-[#3a3a3a] transition"
-    >
+    <button className={cn(base, variants[variant], className)} {...props}>
       {children}
     </button>
   );

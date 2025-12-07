@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 // <T extends HTMLElement> makes this hook work with any HTML tag
 export default function useClickOutside<T extends HTMLElement>(
-  ref: React.RefObject<T>,
+  ref: React.RefObject<T | null>,
   callback: () => void
 ) {
   useEffect(() => {

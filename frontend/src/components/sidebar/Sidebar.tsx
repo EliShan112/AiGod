@@ -26,11 +26,11 @@ const SideBar = () => {
     allThreads,
     setAllThreads,
     setCurrentThreadId,
-    currentThreadId, 
+    currentThreadId,
   } = useContext(MyContext);
 
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-  const useDropDownRef = useRef<HTMLDivElement | null>(null);
+  const useDropDownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(useDropDownRef, () => {
     setMenuOpenId(null);
@@ -44,8 +44,7 @@ const SideBar = () => {
       messages: [],
     };
 
-    // Optional: You might want to save this to DB immediately here too
-    setAllThreads((prev) => [newThread, ...prev]); // Add to top of list
+    setAllThreads((prev) => [newThread, ...prev]); 
     setCurrentThreadId(id);
     setMessages([]);
   };
@@ -72,26 +71,26 @@ const SideBar = () => {
   }, []);
 
   const deleteThread = async (threadId: string) => {
-    // 1. Close menu immediately
+    // close menu immediately
     setMenuOpenId(null);
 
-    // 2. Optimistic Update: Remove from UI immediately for speed
+    //  Update
     setAllThreads((prev) => prev.filter((t) => t.threadId !== threadId));
 
-    // 3. If we deleted the active chat, reset the view
+    // reset the view
     if (currentThreadId === threadId) {
       setCurrentThreadId(null);
       setMessages([]);
     }
 
-    // 4. Perform API call
+    // perform API call
     try {
       await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/api/thread/${threadId}`
       );
     } catch (error) {
       console.error("Error deleting thread", error);
-      // Optional: Revert state if API fails
+      // Revert state if API fails
       loadThreads();
     }
   };
@@ -99,13 +98,13 @@ const SideBar = () => {
   return (
     <section className="sidebar bg-[#171717] text-[#ECECEC] flex flex-col h-screen w-[260px] p-2">
       {/* Top section */}
-      <div className="flex items-center justify-between px-2 py-3 mb-2">
+      <div className="flex items-center justify-between px-2 py-3 mb-4">
         <div
           className="flex items-center gap-2 font-medium hover:bg-[#212121] p-2 rounded-lg cursor-pointer transition-colors w-full"
           onClick={createNewChat}
         >
-          <div className="p-1 rounded-full h-7 w-7 flex items-center justify-center">
-            <Image src="/ChatGPT.png" alt="gpt" width={20} height={20} />
+          <div className="p-1 rounded-full h-10  w-20 flex items-center justify-between">
+            <Image src="/ChatGPT3.png" alt="gpt" width={60} height={60} />
           </div>
           <span>New chat</span>
           <FontAwesomeIcon
@@ -119,7 +118,7 @@ const SideBar = () => {
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <div className="px-2 text-xs font-medium text-gray-500 mb-2">Today</div>
         <ul className="space-y-1">
-          {/* Note: Map uses threadId as key, not idx */}
+          {/* threads mapping */}
           {allThreads?.map((thread) => {
             const isActive = currentThreadId === thread.threadId;
 
@@ -130,31 +129,31 @@ const SideBar = () => {
                     setCurrentThreadId(thread.threadId);
                     setMessages(thread.messages || []);
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-3 text-sm rounded-lg transition-colors
-                    ${isActive ? "bg-[#303030]" : "hover:bg-[#212121]"}
-                  `}
+                  // 1. "w-full" ensures the button fills the sidebar width
+                  // 2. "flex" and "justify-between" aligns text left and icon right
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-3 text-sm transition-colors
+        ${isActive ? "bg-[#303030]" : "hover:bg-[#212121]"}
+      `}
                 >
-                  <span className="truncate flex-1 text-left">
+                  <span className="flex-1 truncate text-left min-w-0">
                     {thread.title ?? "New Chat"}
                   </span>
-
-                  {/* Ellipsis triggers menu */}
-                  {(isActive || menuOpenId === thread.threadId) && (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Toggle logic
-                        setMenuOpenId(
-                          menuOpenId === thread.threadId
-                            ? null
-                            : thread.threadId
-                        );
-                      }}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      <FontAwesomeIcon icon={faEllipsisH} />
-                    </span>
-                  )}
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpenId(
+                        menuOpenId === thread.threadId ? null : thread.threadId
+                      );
+                    }}
+                    className={`shrink-0 flex items-center p-1 justify-center text-gray-400 hover:text-white transition-opacity ${
+                      isActive || menuOpenId === thread.threadId
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }
+        `}
+                  >
+                    <FontAwesomeIcon icon={faEllipsisH} />
+                  </span>
                 </Button>
 
                 {/* Dropdown Menu */}
@@ -174,7 +173,7 @@ const SideBar = () => {
                     >
                       <FontAwesomeIcon icon={faEdit} /> Rename
                     </Button>
-                    <div className="h-[1px] bg-[#424242] my-1 mx-2"></div>
+                    <div className="h-px bg-[#424242] my-1 mx-2"></div>
                     <Button
                       className="w-full text-left px-4 py-2.5 hover:bg-[#424242] text-red-400 hover:text-red-300 text-sm flex items-center gap-2"
                       onClick={() => deleteThread(thread.threadId)}
