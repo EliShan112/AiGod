@@ -6,7 +6,7 @@ import {
   faEllipsisH,
   faTrash,
   faEdit,
-} from "@fortawesome/free-solid-svg-icons"; // Added generic icons
+} from "@fortawesome/free-solid-svg-icons";
 import Button from "../ui/Button";
 import { useContext, useEffect, useRef, useState } from "react";
 import { IThread, MyContext } from "@/contexts/MyContext";
@@ -37,17 +37,13 @@ const SideBar = () => {
   });
 
   const createNewChat = () => {
-    const id = uuidv4();
-    const newThread: IThread = {
-      threadId: id,
-      title: "New Chat",
-      messages: [],
-    };
+  const id = uuidv4();
 
-    setAllThreads((prev) => [newThread, ...prev]); 
-    setCurrentThreadId(id);
-    setMessages([]);
-  };
+  setCurrentThreadId(id);
+
+  setMessages([]);
+};
+  
 
   const loadThreads = async () => {
     try {
