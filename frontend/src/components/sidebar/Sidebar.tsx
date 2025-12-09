@@ -9,10 +9,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Button from "../ui/Button";
 import { useContext, useEffect, useRef, useState } from "react";
-import { IThread, MyContext } from "@/contexts/MyContext";
+import { MyContext } from "@/contexts/MyContext";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import useClickOutside from "@/hooks/useClickOutside";
+import MyProfile from "./MyProfile";
 
 interface ThreadResponse {
   threadId: string;
@@ -124,10 +125,8 @@ const SideBar = () => {
                   onClick={() => {
                     setCurrentThreadId(thread.threadId);
                     setMessages(thread.messages || []);
-                  }}
-                  // 1. "w-full" ensures the button fills the sidebar width
-                  // 2. "flex" and "justify-between" aligns text left and icon right
-                  className={`w-full flex items-center justify-between gap-2 px-3 py-3 text-sm transition-colors
+                  }} 
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors
         ${isActive ? "bg-[#303030]" : "hover:bg-[#212121]"}
       `}
                 >
@@ -185,12 +184,7 @@ const SideBar = () => {
       </div>
 
       {/* Profile Section */}
-      <div className="mt-2 pt-2 border-t border-[#303030] px-2 py-3 flex items-center gap-3 hover:bg-[#212121] rounded-lg cursor-pointer transition-colors">
-        <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
-          ES
-        </div>
-        <div className="text-sm font-medium">Eli Shan</div>
-      </div>
+      <MyProfile/>
     </section>
   );
 };

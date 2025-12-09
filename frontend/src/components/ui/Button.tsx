@@ -12,7 +12,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "px-4 py-2 rounded-lg text-sm font-medium transition active:scale-95";
+    "px-4  py-2 rounded-lg text-sm font-medium transition active:scale-95";
 
   const variants = {
     default: "text-white cursor-pointer ",
