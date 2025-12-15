@@ -284,3 +284,11 @@ export const logOut = async (
     next(err);
   }
 };
+
+
+export const myLoginStatus = async (req: Request, res: Response) => {
+  return res.json({
+    user: req.user,
+    accessToken: req.accessToken
+  });
+}

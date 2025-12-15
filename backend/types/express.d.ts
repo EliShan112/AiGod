@@ -4,7 +4,8 @@ declare global {
             user?: {
                 userId: string;
                 email:string;
-            }
+            };
+            accessToken?: string | null;
         }
     }
 }
