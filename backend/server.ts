@@ -26,8 +26,8 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Routing
-app.use("/api", chatRoutes);
 app.use("/api/auth", userRoutes);
+app.use("/api", chatRoutes);
 
 // 404 handler
 app.all(/(.*)/, (req, res, next) => {

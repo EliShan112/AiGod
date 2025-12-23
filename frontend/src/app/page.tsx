@@ -3,7 +3,9 @@ import Chat from "@/components/chats/Chat";
 import Navbar from "@/components/Layouts/Navbar";
 import SideBar from "@/components/sidebar/Sidebar";
 import { IMessage, IThread, MyContext } from "@/contexts/MyContext";
-import { useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 
@@ -14,6 +16,7 @@ export default function Home() {
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(()=>uuidv4());
   const [allThreads, setAllThreads] = useState<IThread[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const provideValues = {
     allThreads,
@@ -30,7 +33,19 @@ export default function Home() {
 
     currentThreadId,
     setCurrentThreadId,
+    
+    isLoading,
+    setIsLoading,
   };
+
+  const user = useAuthStore((s)=> s.user);
+  const router = useRouter();
+
+// useEffect(() => {
+//   if (!isLoading && !user) {
+//     router.replace("/auth/login");
+//   }
+// }, [isLoading, user]);
 
 
 

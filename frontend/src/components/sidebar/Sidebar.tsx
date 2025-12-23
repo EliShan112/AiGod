@@ -10,10 +10,9 @@ import {
 import Button from "../ui/Button";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MyContext } from "@/contexts/MyContext";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
 import useClickOutside from "@/hooks/useClickOutside";
 import MyProfile from "./MyProfile";
+import api from "@/lib/api";
 
 interface ThreadResponse {
   threadId: string;
@@ -23,11 +22,13 @@ interface ThreadResponse {
 
 const SideBar = () => {
   const {
+    messages,
     setMessages,
     allThreads,
     setAllThreads,
     setCurrentThreadId,
     currentThreadId,
+    setIsLoading
   } = useContext(MyContext);
 
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -37,20 +38,16 @@ const SideBar = () => {
     setMenuOpenId(null);
   });
 
+  // Create new chat
   const createNewChat = () => {
-  const id = uuidv4();
+    setCurrentThreadId(null);
+    setMessages([]);
+  };
 
-  setCurrentThreadId(id);
-
-  setMessages([]);
-};
-  
-
+  // Load the LIST of threads (Titles only)
   const loadThreads = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/thread`
-      );
+      const res = await api.get(`/api/thread`);
       setAllThreads(
         res.data.map((t: ThreadResponse) => ({
           threadId: t.threadId,
@@ -67,6 +64,35 @@ const SideBar = () => {
     loadThreads();
   }, []);
 
+  //Fetch msg on click
+  const fetchMsg = async (threadId: string) => {
+    setCurrentThreadId(threadId);
+    setMessages([]);
+
+    // Check if we already have messages in memory
+    const cachedThread = allThreads.find(t=> t.threadId === threadId);
+    if(cachedThread && cachedThread.messages && cachedThread.messages.length > 0){
+      setMessages(cachedThread.messages);
+      return;
+    }
+
+    if(setIsLoading) setIsLoading(true);
+
+    try {
+      // Backend: getOneThread returns res.json(thread.messages) -> An Array
+      const res = await api.get(`/api/thread/${threadId}`);
+      setMessages(res.data);
+
+      // Update the Sidebar list cache (so we don't fetch again if we click back)
+      setAllThreads(prev => prev.map(t=>t.threadId === threadId ? {...t, messages: res.data} : t));
+      
+    } catch (err) {
+      console.error("Failed to load chat history", err);
+    } finally {
+      if (setIsLoading) setIsLoading(false);
+    }
+  }
+
   const deleteThread = async (threadId: string) => {
     // close menu immediately
     setMenuOpenId(null);
@@ -82,9 +108,7 @@ const SideBar = () => {
 
     // perform API call
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/thread/${threadId}`
-      );
+      await api.delete(`/api/thread/${threadId}`);
     } catch (error) {
       console.error("Error deleting thread", error);
       // Revert state if API fails
@@ -123,9 +147,8 @@ const SideBar = () => {
               <li key={thread.threadId} className="group relative">
                 <Button
                   onClick={() => {
-                    setCurrentThreadId(thread.threadId);
-                    setMessages(thread.messages || []);
-                  }} 
+                    fetchMsg(thread.threadId);
+                  }}
                   className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors
         ${isActive ? "bg-[#303030]" : "hover:bg-[#212121]"}
       `}
@@ -184,7 +207,7 @@ const SideBar = () => {
       </div>
 
       {/* Profile Section */}
-      <MyProfile/>
+      <MyProfile />
     </section>
   );
 };

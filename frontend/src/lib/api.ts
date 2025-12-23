@@ -1,5 +1,8 @@
-// api.ts
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  InternalAxiosRequestConfig,
+  AxiosHeaders,
+} from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const api = axios.create({
@@ -10,43 +13,43 @@ const api = axios.create({
   },
 });
 
-// Extend AxiosRequestConfig to carry our flag
-interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
+// Extend InternalAxiosRequestConfig (better than basic AxiosRequestConfig for interceptors)
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
-//  Request interceptor: attach access token 
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
     if (token) {
-      config.headers = config.headers ?? {};
-      // Some TS defs have headers as AxiosRequestHeaders or plain object
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      config.headers["Authorization"] = `Bearer ${token}`;
+      // Fix: Ensure headers is an instance of AxiosHeaders
+      if (!config.headers) {
+        config.headers = new AxiosHeaders();
+      }
+      config.headers.set("Authorization", `Bearer ${token}`);
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor: refresh logic with queue
+// Queue definition
 let isRefreshing = false;
 let failedQueue: {
   resolve: (value?: any) => void;
   reject: (err?: any) => void;
-  originalRequest: AxiosRequestConfigWithRetry;
+  originalRequest: CustomAxiosRequestConfig;
 }[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else {
-      // attach token if available
-      prom.originalRequest.headers = prom.originalRequest.headers ?? {};
-      // @ts-ignore
-      prom.originalRequest.headers["Authorization"] = `Bearer ${token}`;
+    if (error) {
+      prom.reject(error);
+    } else {
+      if (prom.originalRequest.headers) {
+        prom.originalRequest.headers.set("Authorization", `Bearer ${token}`);
+      }
       prom.resolve(api(prom.originalRequest));
     }
   });
@@ -55,59 +58,66 @@ const processQueue = (error: any, token: string | null = null) => {
 
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError & { config?: AxiosRequestConfigWithRetry }) => {
-    const originalRequest = error.config as AxiosRequestConfigWithRetry | undefined;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as
+      | CustomAxiosRequestConfig
+      | undefined;
 
-    // If no originalRequest or no response - just reject
     if (!originalRequest || !error.response) return Promise.reject(error);
 
     const status = error.response.status;
-
-    const shouldRefresh = (status === 401 || status === 403);
+    const shouldRefresh = status === 401 || status === 403;
 
     if (shouldRefresh && !originalRequest._retry) {
-      originalRequest._retry = true;
-
       if (isRefreshing) {
-        // Push this request into the queue — it will be retried when refresh completes
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject, originalRequest });
         });
       }
 
+      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        // Use plain axios (no interceptors) to call refresh endpoint
+        // Call refresh endpoint
         const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
           {},
           { withCredentials: true }
         );
 
-        const newAccessToken = data?.accessToken ?? null;
+        const newAccessToken = data?.accessToken;
 
         if (!newAccessToken) {
           throw new Error("No accessToken in refresh response");
         }
 
-        // Update Zustand store
         useAuthStore.getState().setAccessToken(newAccessToken);
 
-        // process queued requests
+        // Process queue
         processQueue(null, newAccessToken);
 
-        // attach token to original request and retry
-        originalRequest.headers = originalRequest.headers ?? {};
-        // @ts-ignore
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        // Retry original request
+        if (originalRequest.headers) {
+          originalRequest.headers.set(
+            "Authorization",
+            `Bearer ${newAccessToken}`
+          );
+        }
 
         return api(originalRequest);
-      } catch (err) {
-        // refresh failed — clear queue and logout
-        processQueue(err, null);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        // Clear local auth state
         useAuthStore.getState().logout();
-        return Promise.reject(err);
+
+        // OPTIONAL: Redirect to login explicitly if needed
+        // window.location.href = '/login';
+
+        //  Reject, but you might want to wrap this to avoid UI crashes
+        // If the refresh fails, the session is essentially over.
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }

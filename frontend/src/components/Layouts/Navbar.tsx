@@ -8,8 +8,6 @@ import {
   faUser,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
-import Button from "../ui/Button";
-
 const Navbar = () => {
   const [modelOpen, setModelOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState("GPT-5.1");

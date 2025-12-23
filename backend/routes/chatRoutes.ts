@@ -1,12 +1,11 @@
 import express from "express";
-import { createChat, destroyThread, getOneThread, getThread, test } from "../controllers/chatController.js";
-import { verifyRefreshToken } from "../utils/jwt.js";
-import asyncWrap from "../utils/asyncWrap.js";
-import { myLoginStatus } from "../controllers/userController.js";
+import { createChat, destroyThread, getOneThread, getThread } from "../controllers/chatController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/test", test);
+// Everything below requires ACCESS TOKEN   
+router.use(authMiddleware);
 
 router.get("/thread", getThread);
 
@@ -16,6 +15,5 @@ router.delete("/thread/:threadId", destroyThread);
 
 router.post("/chat", createChat);
 
-router.get('/me', verifyRefreshToken, asyncWrap(myLoginStatus));
 
 export default router;

@@ -20,6 +20,8 @@ export interface IContext {
   setMessages: Dispatch<SetStateAction<IMessage[]>>;
   currentThreadId: string | null;
   setCurrentThreadId: Dispatch<SetStateAction<string | null>>;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 export const MyContext = createContext<IContext>({
   isTyping: false,
@@ -32,4 +34,7 @@ export const MyContext = createContext<IContext>({
   setMessages: () => {},
   currentThreadId: null,
   setCurrentThreadId: () => {},
+  isLoading: false,
+  setIsLoading: () => {},
+
 });

@@ -9,6 +9,7 @@ import {
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+
 const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",

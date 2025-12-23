@@ -7,6 +7,7 @@ interface IMessageSchema{
 }
 
 interface IThreadSchema extends Document {
+    userId: mongoose.Types.ObjectId;
     threadId: string;
     title: string;
     messages: IMessageSchema[];
@@ -34,10 +35,17 @@ const MessageSchema = new mongoose.Schema<IMessageSchema>({
 });
 
 const ThreadSchema = new mongoose.Schema<IThreadSchema>({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+        index: true,
+    },
     threadId: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index: true
     },
 
     title: {

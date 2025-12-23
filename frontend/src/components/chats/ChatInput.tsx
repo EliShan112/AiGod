@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useContext } from "react";
 import { IMessage, MyContext } from "@/contexts/MyContext";
-import axios from "axios";
+import api from "@/lib/api";
 
 const ChatInput = () => {
   const {
@@ -14,7 +14,9 @@ const ChatInput = () => {
     setMessages,
     currentThreadId,
     setAllThreads,
-    setCurrentThreadId
+    setCurrentThreadId,
+    isLoading,
+    setIsLoading,
   } = useContext(MyContext);
 
   const getReply = async () => {
@@ -23,19 +25,20 @@ const ChatInput = () => {
     const userText = prompt;
     setPrompt(""); // clear input ASAP
 
-    // 1️⃣ Add user message to UI
+    // 1 Add user message to UI
     const userMsg: IMessage = { role: "user", content: userText };
     setMessages(prev => [...prev, userMsg]);
-
+    
     setIsTyping(true);
-
-    // 2️⃣ Add placeholder assistant message for typing effect
+    
+    // 2 Add placeholder assistant message for typing effect
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
-
+    
     try {
-      // 3️⃣ Backend request (FULL THREAD is returned)
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/chat`,
+      setIsLoading(true);
+      // 2 Backend request (FULL THREAD is returned)
+      const res = await api.post(
+        `/api/chat`,
         {
           threadId: currentThreadId,
           message: userText,
@@ -45,10 +48,10 @@ const ChatInput = () => {
       const fullThread = res.data.thread;
       const assistantReply = res.data.reply;
 
-      // 4️⃣ Update currentThreadId (backend may create new thread)
+      // 4 Update currentThreadId (backend may create new thread)
       setCurrentThreadId(fullThread.threadId);
 
-      // 5️⃣ Typing effect
+      // 5 Typing effect
       const words = assistantReply.split(" ");
 
       for (let i = 1; i <= words.length; i++) {
@@ -66,10 +69,10 @@ const ChatInput = () => {
         });
       }
 
-      // 6️⃣ After typing: replace placeholder with REAL messages from backend
+      // 6 After typing: replace placeholder with REAL messages from backend
       setMessages(fullThread.messages);
 
-      // 7️⃣ Update allThreads list
+      // 7 Update allThreads list
       setAllThreads(prev => {
         const exists = prev.some(t => t.threadId === fullThread.threadId);
 
@@ -97,6 +100,7 @@ const ChatInput = () => {
 
     } finally {
       setIsTyping(false);
+      setIsLoading(false);
     }
   };
 
