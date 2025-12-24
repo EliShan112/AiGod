@@ -8,11 +8,11 @@ import {
   faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import Button from "../ui/Button";
-import { useContext, useEffect, useRef, useState } from "react";
-import { MyContext } from "@/contexts/MyContext";
+import { useEffect, useRef, useState } from "react";
 import useClickOutside from "@/hooks/useClickOutside";
 import MyProfile from "./MyProfile";
 import api from "@/lib/api";
+import { useChatStore } from "@/store/useChatStore";
 
 interface ThreadResponse {
   threadId: string;
@@ -29,7 +29,7 @@ const SideBar = () => {
     setCurrentThreadId,
     currentThreadId,
     setIsLoading
-  } = useContext(MyContext);
+  } = useChatStore();
 
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const useDropDownRef = useRef<HTMLDivElement>(null);

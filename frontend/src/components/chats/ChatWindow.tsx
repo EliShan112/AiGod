@@ -1,15 +1,16 @@
 "use client";
 
-import { MyContext } from "@/contexts/MyContext";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import { useChatStore } from "@/store/useChatStore";
 
 
 const ChatWindow = () => {
-  const { messages, isTyping } = useContext(MyContext);
+  const messages = useChatStore((s)=> s.messages);
+  const isTyping = useChatStore((s)=> s.isTyping);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 

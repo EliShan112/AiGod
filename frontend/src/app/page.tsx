@@ -1,65 +1,44 @@
 "use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useChatStore } from "@/store/useChatStore"; // Import store to reset on load (optional)
+
 import Chat from "@/components/chats/Chat";
 import Navbar from "@/components/Layouts/Navbar";
 import SideBar from "@/components/sidebar/Sidebar";
-import { IMessage, IThread, MyContext } from "@/contexts/MyContext";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-
-
 
 export default function Home() {
-  const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState<IMessage[]>([]);
-  const [currentThreadId, setCurrentThreadId] = useState<string | null>(()=>uuidv4());
-  const [allThreads, setAllThreads] = useState<IThread[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const provideValues = {
-    allThreads,
-    setAllThreads,
-
-    isTyping,
-    setIsTyping,
-
-    prompt,
-    setPrompt,
-
-    messages,
-    setMessages,
-
-    currentThreadId,
-    setCurrentThreadId,
-    
-    isLoading,
-    setIsLoading,
-  };
-
-  const user = useAuthStore((s)=> s.user);
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useChatStore((s) => s.isLoading);
+  const resetChat = useChatStore((s) => s.resetChat); 
   const router = useRouter();
 
-// useEffect(() => {
-//   if (!isLoading && !user) {
-//     router.replace("/auth/login");
-//   }
-// }, [isLoading, user]);
+  // 1. Auth Protection
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [isLoading, user, router]);
 
+  // 2. (Optional) Cleanup: Reset chat when the user leaves the page or refreshes
+  // This replaces your old `useState(() => uuidv4())` logic
+  useEffect(() => {
+    // When Home mounts, ensure we start fresh (or you can remove this to keep history)
+    resetChat(); 
+  }, []);
 
+  // if (isLoading) return <div className="text-white">Loading...</div>;
 
   return (
     <main className="flex bg-[#212121] h-screen overflow-hidden">
+      
+      <SideBar />
 
-      <MyContext.Provider value={provideValues}>
-        <SideBar />
-
-        <div className="flex-1 flex flex-col h-screen">
-          <Navbar />
-          <Chat />
-        </div>
-      </MyContext.Provider>
+      <div className="flex-1 flex flex-col h-screen">
+        <Navbar />
+        <Chat />
+      </div>
     </main>
   );
 }

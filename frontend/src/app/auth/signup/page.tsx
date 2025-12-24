@@ -30,6 +30,8 @@ const Signup = () => {
         err?.message ||
         "Signup failed. Please try again.";
       setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,22 +41,29 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-[#212121] text-white">
+    <div className="min-h-screen flex items-center justify-center bg-[#212121] px-4">
       <form
-        className="w-96 p-6 bg-[#171717] rounded-lg h-3/5 flex flex-col justify-center items-center relative shadow-2xl"
+        className="w-full max-w-md bg-[#171717] p-8 rounded-xl shadow-2xl flex flex-col gap-6"
         onSubmit={handleSignup}
-        aria-label="login form"
+        aria-label="signup form"
       >
-        <h2 className="text-3xl mb-4 font-bold absolute top-6 text-white shadow-2xl">
-          Welcome
-        </h2>
-        {error && (
-          <p role="alert" className="text-red-500 mb-2 text-sm wrap-break-word">
-            {error}
+        <div className="text-center mb-2">
+          <h2 className="text-3xl font-bold text-white tracking-tight">
+            Create Account
+          </h2>
+          <p className="text-gray-400 text-sm mt-2">
+            Join us to start chatting with AI
           </p>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-sm text-red-200 text-center">
+            {error}
+          </div>
         )}
 
-        <div className="relative w-full mb-4">
+        {/* Username Field */}
+        <div className="relative">
           <input
             type="text"
             name="username"
@@ -63,23 +72,23 @@ const Signup = () => {
             onChange={handleChange}
             placeholder=" "
             required
-            className="peer block w-full border border-gray-300 rounded-md px-4 pt-4 pb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="peer block w-full rounded-lg border border-[#424242] bg-[#2f2f2f] px-4 pt-5 pb-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all"
           />
           <label
             htmlFor="username"
-            className={`absolute left-4 text-gray-500 transition-all cursor-text
-              ${
-                form.username
-                  ? "top-0 text-sm text-blue-500"
-                  : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500"
-              }
+            className={`
+              absolute left-4 transition-all duration-200 pointer-events-none text-gray-400
+              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base
+              peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-400
+              ${form.username ? "top-1 text-xs text-blue-400" : ""}
             `}
           >
             Username
           </label>
         </div>
 
-        <div className="relative w-full mb-4">
+        {/* Email Field */}
+        <div className="relative">
           <input
             type="email"
             name="email"
@@ -88,23 +97,23 @@ const Signup = () => {
             onChange={handleChange}
             placeholder=" "
             required
-            className="peer block w-full border border-gray-300 rounded-md px-4 pt-4 pb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="peer block w-full rounded-lg border border-[#424242] bg-[#2f2f2f] px-4 pt-5 pb-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all"
           />
           <label
             htmlFor="email"
-            className={`absolute left-4 text-gray-500 transition-all cursor-text
-              ${
-                form.email
-                  ? "top-0 text-sm text-blue-500"
-                  : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500"
-              }
+            className={`
+              absolute left-4 transition-all duration-200 pointer-events-none text-gray-400
+              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base
+              peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-400
+              ${form.email ? "top-1 text-xs text-blue-400" : ""}
             `}
           >
-            Email
+            Email address
           </label>
         </div>
 
-        <div className="relative w-full mb-4">
+        {/* Password Field */}
+        <div className="relative">
           <input
             type="password"
             name="password"
@@ -113,32 +122,48 @@ const Signup = () => {
             onChange={handleChange}
             placeholder=" "
             required
-            className="peer block w-full border border-gray-300 rounded-md px-4 pt-4 pb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="peer block w-full rounded-lg border border-[#424242] bg-[#2f2f2f] px-4 pt-5 pb-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all"
           />
           <label
             htmlFor="password"
-            className={`absolute left-4 text-gray-500 transition-all cursor-text
-              ${
-                form.password
-                  ? "top-0 text-sm text-blue-500"
-                  : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500"
-              }
+            className={`
+              absolute left-4 transition-all duration-200 pointer-events-none text-gray-400
+              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base
+              peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-400
+              ${form.password ? "top-1 text-xs text-blue-400" : ""}
             `}
           >
             Password
           </label>
         </div>
 
+        {/* Action Button */}
         <button
-          className={`w-full bg-[#444444] hover:bg-green-700 p-2 rounded font-bold transition cursor-pointer ${
-            loading ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          disabled={loading}
+          className={`
+            w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 cursor-pointer
+            ${loading 
+              ? "bg-[#333] cursor-not-allowed opacity-70" 
+              : "bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-lg shadow-blue-500/20"
+            }
+          `}
         >
-          {loading ? "Creating Account…" : "Sign Up"}
+          {loading ? (
+             <span className="flex items-center justify-center gap-2">
+             <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+             </svg>
+             Creating Account...
+           </span>
+          ) : (
+            "Sign Up"
+          )}
         </button>
-        <p className="mt-4 text-sm text-gray-400">
+
+        <p className="text-center text-sm text-gray-400">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-blue-400">
+          <Link href="/auth/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
             Log In
           </Link>
         </p>

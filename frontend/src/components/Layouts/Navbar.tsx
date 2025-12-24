@@ -11,7 +11,6 @@ import {
 const Navbar = () => {
   const [modelOpen, setModelOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState("GPT-5.1");
-  const [openProfile, setOpenProfile] = useState(false);
 
   const models = ["GPT-5.1", "GPT-4.1", "GPT-3.5 Turbo", "GPT-o Mini"];
 

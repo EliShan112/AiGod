@@ -1,23 +1,21 @@
 "use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import { useContext } from "react";
-import { IMessage, MyContext } from "@/contexts/MyContext";
+import { IMessage } from "@/store/useChatStore";
 import api from "@/lib/api";
+import { useChatStore } from "@/store/useChatStore";
 
 const ChatInput = () => {
-  const {
-    prompt,
-    setPrompt,
-    isTyping,
-    setIsTyping,
-    setMessages,
-    currentThreadId,
-    setAllThreads,
-    setCurrentThreadId,
-    isLoading,
-    setIsLoading,
-  } = useContext(MyContext);
+  const prompt = useChatStore((s)=> s.prompt);
+  const setPrompt = useChatStore((s)=> s.setPrompt);
+  const isTyping = useChatStore((s)=> s.isTyping);
+  const setIsTyping = useChatStore((s)=> s.setIsTyping);
+  const setMessages = useChatStore((s)=> s.setMessages);
+  const currentThreadId = useChatStore((s)=> s.currentThreadId);
+  const setAllThreads = useChatStore((s)=> s.setAllThreads);
+  const setCurrentThreadId = useChatStore((s)=> s.setCurrentThreadId);
+  const isLoading = useChatStore((s)=> s.isLoading);
+  const setIsLoading = useChatStore((s)=> s.setIsLoading);
 
   const getReply = async () => {
     if (!prompt.trim() || isTyping) return;
