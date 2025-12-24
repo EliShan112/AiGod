@@ -21,15 +21,15 @@ interface ThreadResponse {
 }
 
 const SideBar = () => {
-  const {
-    messages,
-    setMessages,
-    allThreads,
-    setAllThreads,
-    setCurrentThreadId,
-    currentThreadId,
-    setIsLoading
-  } = useChatStore();
+
+  const setMessages = useChatStore((s)=> s.setMessages);
+  const allThreads = useChatStore((s)=> s.allThreads);
+  const setAllThreads = useChatStore((s)=> s.setAllThreads);
+  const setCurrentThreadId = useChatStore((s)=> s.setCurrentThreadId);
+  const currentThreadId = useChatStore((s)=> s.currentThreadId);
+  const setIsLoading = useChatStore((s)=> s.setIsLoading);
+  const isSidebarOpen = useChatStore((s)=> s.isSidebarOpen);
+  const setIsSidebarOpen = useChatStore((s)=> s.setIsSidebarOpen)
 
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const useDropDownRef = useRef<HTMLDivElement>(null);
@@ -117,7 +117,19 @@ const SideBar = () => {
   };
 
   return (
-    <section className="sidebar bg-[#171717] text-[#ECECEC] flex flex-col h-screen w-[260px] p-2">
+    <section className={`
+    fixed left-0 z-40 w-[260px] bg-[#171717] text-[#ECECEC]
+    transform transition-transform duration-300 ease-in-out
+
+    top-16 h-[calc(100vh-4rem)]
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+
+    md:top-0 md:h-screen
+    md:relative md:translate-x-0 md:flex
+
+    flex flex-col p-2
+  `}
+  >
       {/* Top section */}
       <div className="flex items-center justify-between px-2 py-3 mb-4">
         <div

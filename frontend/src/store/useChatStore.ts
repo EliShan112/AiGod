@@ -21,12 +21,14 @@ interface ChatState {
   currentThreadId: string | null;
   messages: IMessage[];
   allThreads: IThread[];
+  isSidebarOpen: boolean;
 
   // --- BASIC ACTIONS (Setters) ---
   setIsTyping: (isTyping: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   setPrompt: (prompt: string) => void;
   setCurrentThreadId: (id: string | null) => void;
+  setIsSidebarOpen: (isOpen: boolean) => void;
   
   // We allow passing a direct array OR a function (to mimic React's setState)
   setMessages: (messages: IMessage[] | ((prev: IMessage[]) => IMessage[])) => void;
@@ -37,11 +39,13 @@ interface ChatState {
   addMessage: (msg: IMessage) => void;
   updateLastMessage: (content: string) => void;
   resetChat: () => void;
+  toggleSidebar: () => void;
 }
 
 // 3. Store Implementation
 export const useChatStore = create<ChatState>((set) => ({
   // Initial State
+  isSidebarOpen: false,
   isTyping: false,
   isLoading: false,
   prompt: "",
@@ -54,6 +58,7 @@ export const useChatStore = create<ChatState>((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   setPrompt: (prompt) => set({ prompt }),
   setCurrentThreadId: (currentThreadId) => set({ currentThreadId }),
+  setIsSidebarOpen: (isSidebarOpen) => set({ isSidebarOpen }),
 
   // flexible setMessages (handles value or function)
   setMessages: (updater) => set((state) => ({
@@ -84,4 +89,5 @@ export const useChatStore = create<ChatState>((set) => ({
     currentThreadId: null, 
     prompt: "" 
   }),
+  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
 }));

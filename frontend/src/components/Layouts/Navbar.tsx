@@ -5,12 +5,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
   faChevronDown,
-  faUser,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
+import { useChatStore } from "@/store/useChatStore";
 const Navbar = () => {
   const [modelOpen, setModelOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState("GPT-5.1");
+  const setIsSidebarOpen = useChatStore((s)=> s.setIsSidebarOpen)
+  const isSidebarOpen = useChatStore((s)=> s.isSidebarOpen);
 
   const models = ["GPT-5.1", "GPT-4.1", "GPT-3.5 Turbo", "GPT-o Mini"];
 
@@ -41,7 +43,7 @@ const Navbar = () => {
     <nav className="w-full h-16 bg-[#212121] border-b border-[#2a2a2a] flex items-center justify-between px-4 text-gray-200 relative z-50">
 
       {/* Left: Mobile sidebar */}
-      <button className="lg:hidden p-2 hover:bg-[#2a2a2a] rounded">
+      <button className="lg:hidden p-2 hover:bg-[#2a2a2a] rounded" onClick={()=> setIsSidebarOpen(!isSidebarOpen)}>
         <FontAwesomeIcon icon={faBars} />
       </button>
 

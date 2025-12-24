@@ -30,7 +30,7 @@ const ChatWindow = () => {
         </p>
       )}
 
-      <section className="max-w-[60%] m-auto flex flex-col flex-1">
+      <section className="max-w-[85%] md:max-w-[60%]  m-auto flex flex-col flex-1">
         {messages.map((msg, index) => (
           <div
             key={index}
